@@ -7,10 +7,6 @@ const userController = {
             path: 'thoughts',
             select: '-__v'
         })
-        .populate({
-            path: 'friends',
-            select: '-__v'
-        })
         .then(dbUserData => res.json(dbUserData))
         .catch(err => {
             console.log(err)
@@ -22,10 +18,6 @@ const userController = {
         User.findOne({_id: params.id})
         .populate({
             path: 'thoughts',
-            select: '-__v'
-        })
-        .populate({
-            path: 'friends',
             select: '-__v'
         })
         .then(dbUserData => {
@@ -60,6 +52,26 @@ const userController = {
     deleteUser(req, res) {
         User.findOneAndDelete(
             {_id: req.params.id},
+            {new: true}
+        )
+        .then(dbUserData => res.json(dbUserData))
+        .catch(err => res.status(400).json(err))
+    },
+
+    addFriend({ params }, res) {
+        return User.findOneAndUpdate(
+            {_id: params.userId},
+            {$push: {friends: params.friendId}},
+            {new: true}
+        )
+        .then(dbUserData => res.json(dbUserData))
+        .catch(err => res.status(400).json(err))
+    },
+
+    removeFriend ({params}, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId },
+            { $pull: {friends: params.friendId}},
             {new: true}
         )
         .then(dbUserData => res.json(dbUserData))
